@@ -20,9 +20,11 @@ namespace BackendIncidents.Controllers
             [FromQuery] string? title,
             [FromQuery] string? description,
             [FromQuery] string? severity,
-            [FromQuery] string? owner)
+            [FromQuery] string? owner,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20)
         {
-            var result = await _incidentRepository.GetIncidentsAsync(title, description, severity, owner);
+            var result = await _incidentRepository.GetIncidentsAsync(title, description, severity, owner,page, pageSize);
             return Ok(result.ToIncidentListDTO());
         }
     }

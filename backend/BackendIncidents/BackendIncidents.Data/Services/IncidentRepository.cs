@@ -12,7 +12,7 @@ namespace BackendIncidents.Data.Services
             _context = context;
         }
 
-        public async Task<List<Incident>> GetIncidentsAsync(string? title = null, string? description = null, string? severity = null, string? owner = null)
+        public async Task<List<Incident>> GetIncidentsAsync(string? title, string? description, string? severity, string? owner,int page, int pageSize)
         {
             var query = _context.Incidents
                         .Include(i => i.Owner)
@@ -38,7 +38,8 @@ namespace BackendIncidents.Data.Services
 
             return await query
              .OrderByDescending(i => i.CreatedAt)
-             .Take(100)
+             .Skip((page - 1) * pageSize)
+             .Take(pageSize)
              .ToListAsync();    
         }
     }
