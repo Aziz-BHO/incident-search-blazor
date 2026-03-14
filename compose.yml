@@ -1,0 +1,32 @@
+version: "3.9"
+
+volumes:
+  pgdata:
+
+services:
+  database:
+    image: postgres:17
+    container_name: incidents_db
+    restart: always
+    environment:
+      POSTGRES_DB: incidents
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./01-ddl.sql:/docker-entrypoint-initdb.d/01-ddl.sql
+      - ./02-data.sql:/docker-entrypoint-initdb.d/02-data.sql
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    depends_on:
+      - database
