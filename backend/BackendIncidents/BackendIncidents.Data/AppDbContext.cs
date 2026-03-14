@@ -10,5 +10,13 @@ namespace BackendIncidents.Data
 
         public DbSet<Person> Persons { get; set; }
         public DbSet<Incident> Incidents { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Incident>()
+                .HasOne(i => i.Owner)
+                .WithMany()
+                .HasForeignKey(i => i.OwnerId);
+        }
     }
 }
