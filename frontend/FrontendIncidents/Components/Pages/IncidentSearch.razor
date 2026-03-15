@@ -1,0 +1,100 @@
+﻿@page "/incidents"
+@rendermode InteractiveServer
+@inject HttpClient Http
+
+<PageTitle>Incident</PageTitle>
+
+<h3>Incident Search</h3>
+
+<div class="mb-3">
+    <label>Title</label>
+    <input @bind="title" class="form-control" />
+</div>
+
+<div class="mb-3">
+    <label>Description</label>
+    <input @bind="description" class="form-control" />
+</div>
+
+<div class="mb-3">
+    <label>Severity</label>
+    <input @bind="severity" class="form-control" />
+</div>
+
+<div class="mb-3">
+    <label>Owner</label>
+    <input @bind="owner" class="form-control" />
+</div>
+
+<button class="btn btn-primary" @onclick="Search">Search</button>
+<br />
+
+<p>Last query time: @queryTime seconds</p>
+
+@if (incidents != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Severity</th>
+                <th>Owner</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var i in incidents)
+            {
+                <tr>
+                    <td>@i.Title</td>
+                    <td>@i.Description</td>
+                    <td>@i.Severity</td>
+                    <td>@i.Owner?.FirstName @i.Owner?.LastName</td>
+                    <td>@i.Owner?.Email</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+
+    string? title;
+    string? description;
+    string? severity;
+    string? owner;
+
+    double queryTime;
+
+    List<IncidentDto>? incidents;
+
+    async Task Search()
+    {
+        var start = DateTime.Now;
+
+        var url = $"https://localhost:7216/api/Incidents?title={title}&description={description}&severity={severity}&owner={owner}";
+
+        incidents = await Http.GetFromJsonAsync<List<IncidentDto>>(url);
+
+        queryTime = (DateTime.Now - start).TotalSeconds;
+    }
+
+    public class IncidentDto
+    {
+        public int? Id { get; set; }
+        public string? Title { get; set; }
+        public string? Description { get; set; }
+        public string? Severity { get; set; }
+        public OwnerDto? Owner { get; set; }
+    }
+
+    public class OwnerDto
+    {
+        public int Id { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? Email { get; set; }
+    }
+}
