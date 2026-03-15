@@ -32,8 +32,13 @@ Pour lancer PostgreSQL avec les données :
 
 docker-compose up
 
-# Backend
+# Backend 
 Ouvrir le projet backend dans Visual Studio.
+
+dans le terminal lancer les variables d'env suivantes : 
+setx DB_USER user
+setx DB_PASSWORD password
+setx DB_NAME incidents
 
 Lancer l’API WebAPI.
 
