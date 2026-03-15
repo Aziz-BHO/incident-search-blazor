@@ -36,7 +36,7 @@ namespace BackendIncidents.Data.Services
                 );
             }
 
-            return await query
+            return await query.AsNoTracking()
              .OrderByDescending(i => i.CreatedAt)
              .Skip((page - 1) * pageSize)
              .Take(pageSize)
