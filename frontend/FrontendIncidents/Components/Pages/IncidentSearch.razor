@@ -26,10 +26,24 @@
     <input @bind="owner" class="form-control" />
 </div>
 
-<button class="btn btn-primary" @onclick="Search">Search</button>
+<button class="btn btn-primary"
+        @onclick="NewSearch"
+        disabled="@isLoading">
+    Search
+</button>
 <br />
 
 <p>Last query time: @queryTime seconds</p>
+
+@if (isLoading)
+{
+    <p class="text-primary">Searching...</p>
+}
+
+@if (incidents != null && incidents.Count == 0)
+{
+    <p class="text-danger">No incidents found.</p>
+}
 
 @if (incidents != null)
 {
@@ -57,6 +71,26 @@
             }
         </tbody>
     </table>
+
+    <div class="mt-4 text-center">
+
+        <button class="btn btn-secondary"
+                @onclick="PreviousPage"
+                disabled="@(pageAt == 1 || isLoading)">
+            Previous
+        </button>
+
+        <span class="mx-3">
+                Page @pageAt
+        </span>
+
+        <button class="btn btn-secondary"
+                @onclick="NextPage"
+                disabled="@(!hasNextPage || isLoading)">
+            Next
+        </button>
+
+</div>
 }
 
 @code {
@@ -65,6 +99,10 @@
     string? description;
     string? severity;
     string? owner;
+    int pageAt = 1;
+    int pageSize = 10;
+    bool hasNextPage = true;
+    bool isLoading = false;
 
     double queryTime;
 
@@ -72,13 +110,41 @@
 
     async Task Search()
     {
+        isLoading = true;
+
+        await Task.Delay(10000);
         var start = DateTime.Now;
 
-        var url = $"https://localhost:7216/api/Incidents?title={title}&description={description}&severity={severity}&owner={owner}";
+        var url = $"https://localhost:7216/api/Incidents?title={title}&description={description}&severity={severity}&owner={owner}&page={pageAt}&pageSize={pageSize}";
 
         incidents = await Http.GetFromJsonAsync<List<IncidentDto>>(url);
 
         queryTime = (DateTime.Now - start).TotalSeconds;
+
+        hasNextPage = incidents != null && incidents.Count == pageSize;
+
+        isLoading = false;
+    }
+
+    async Task NewSearch()
+    {
+        pageAt = 1;
+        await Search();
+    }
+
+    async Task NextPage()
+    {
+        pageAt++;
+        await Search();
+    }
+
+    async Task PreviousPage()
+    {
+        if (pageAt > 1)
+        {
+            pageAt--;
+            await Search();
+        }
     }
 
     public class IncidentDto
